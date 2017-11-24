@@ -55,12 +55,31 @@ class AirCargoProblem(Problem):
         # forward search and Planning Graphs must use Propositional Logic
 
         def load_actions():
-            """Create all concrete Load actions and return a list
+            """
+            Action(Load(c, p, a),
+	        PRECOND: At(c, a) ∧ At(p, a) ∧ Cargo(c) ∧ Plane(p) ∧ Airport(a)
+	        EFFECT: ¬ At(c, a) ∧ In(c, p))
+
+            Create all concrete Load actions and return a list
 
             :return: list of Action objects
             """
             loads = []
-            # TODO create all load ground actions from the domain Load action
+
+            for airport in self.airports:
+                for plane in self.planes:
+                    for cargo in self.cargos:
+                        precond_pos = [expr("At({}, {})".format(cargo, airport)),]
+                        precond_neg = []
+
+                        effect_add = [expr("In({}, {})".format(cargo, plane))]
+                        effect_rem = [expr("At({}, {})".format(cargo, airport))]
+
+                        load = Action(expr("Load({}, {}, {})".format(cargo, plane, airport)),
+                                      [precond_pos, precond_neg],
+                                      [effect_add, effect_rem])
+                        loads.append(load)
+
             return loads
 
         def unload_actions():
