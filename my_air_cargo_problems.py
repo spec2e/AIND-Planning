@@ -84,12 +84,33 @@ class AirCargoProblem(Problem):
             return loads
 
         def unload_actions():
-            """Create all concrete Unload actions and return a list
+            """
+            Action(Unload(c, p, a),
+	        PRECOND: In(c, p) ∧ At(p, a) ∧ Cargo(c) ∧ Plane(p) ∧ Airport(a)
+	        EFFECT: At(c, a) ∧ ¬ In(c, p))
+
+            Create all concrete Unload actions and return a list
 
             :return: list of Action objects
             """
             unloads = []
-            # TODO create all Unload ground actions from the domain Unload action
+
+            for airport in self.airports:
+                for plane in self.planes:
+                    for cargo in self.cargos:
+                        precond_pos = [expr("In({}, {})".format(cargo, plane)),
+                                       expr("At({}, {})".format(plane, airport))]
+                        precond_neg = []
+
+                        effect_add = [expr("At({}, {})".format(cargo, airport))]
+                        effect_rem = [expr("In({}, {})".format(cargo, plane))]
+
+                        unload = Action(expr("Unload({}, {}, {})".format(cargo, plane, airport)),
+                                      [precond_pos, precond_neg],
+                                      [effect_add, effect_rem])
+                        unloads.append(unload)
+
+
             return unloads
 
         def fly_actions():
@@ -123,7 +144,8 @@ class AirCargoProblem(Problem):
             e.g. 'FTTTFF'
         :return: list of Action objects
         """
-        # TODO implement
+        print("state", state)
+
         possible_actions = []
         return possible_actions
 
