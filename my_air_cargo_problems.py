@@ -66,11 +66,11 @@ class AirCargoProblem(Problem):
             """
             loads = []
 
-            for airport in self.airports:
+            for cargo in self.cargos:
                 for plane in self.planes:
-                    for cargo in self.cargos:
+                    for airport in self.airports:
                         precond_pos = [expr("At({}, {})".format(cargo, airport)),
-                                       expr("At({}, {})".format(cargo, plane))]
+                                       expr("At({}, {})".format(plane, airport))]
                         precond_neg = []
 
                         effect_add = [expr("In({}, {})".format(cargo, plane))]
@@ -95,9 +95,9 @@ class AirCargoProblem(Problem):
             """
             unloads = []
 
-            for airport in self.airports:
+            for cargo in self.cargos:
                 for plane in self.planes:
-                    for cargo in self.cargos:
+                    for airport in self.airports:
                         precond_pos = [expr("In({}, {})".format(cargo, plane)),
                                        expr("At({}, {})".format(plane, airport))]
                         precond_neg = []
@@ -144,10 +144,21 @@ class AirCargoProblem(Problem):
             e.g. 'FTTTFF'
         :return: list of Action objects
         """
-        print("state", state)
-
         possible_actions = []
+        kb = PropKB()
+        kb.tell(decode_state(state, self.state_map).pos_sentence())
+        for action in self.actions_list:
+            is_possible = True
+            for clause in action.precond_pos:
+                if clause not in kb.clauses:
+                    is_possible = False
+            for clause in action.precond_neg:
+                if clause in kb.clauses:
+                    is_possible = False
+            if is_possible:
+                possible_actions.append(action)
         return possible_actions
+
 
     def result(self, state: str, action: Action):
         """ Return the state that results from executing the given
