@@ -409,11 +409,35 @@ class PlanningGraph():
         documentation for details on accessing the effects and preconditions of
         an action.
 
+        self.precond_pos = precond[0]
+        self.precond_neg = precond[1]
+        self.effect_add = effect[0]
+        self.effect_rem = effect[1]
+
+
         :param node_a1: PgNode_a
         :param node_a2: PgNode_a
         :return: bool
         """
-        # TODO test for Inconsistent Effects between nodes
+
+        a1_action = node_a1.action
+        a1_pos_effects = set(a1_action.effect_add)
+        a1_neg_effects = set(a1_action.effect_rem)
+
+        a2_action = node_a2.action
+        a2_pos_effects = set(a2_action.effect_add)
+        a2_neg_effects = set(a2_action.effect_rem)
+
+        a2_negates_a1 = a1_pos_effects.intersection(a2_neg_effects)
+
+        if len(a2_negates_a1) > 0:
+            return True
+
+        a1_negates_a2 = a2_pos_effects.intersection(a1_neg_effects)
+
+        if len(a1_negates_a2) > 0:
+            return True
+
         return False
 
 
