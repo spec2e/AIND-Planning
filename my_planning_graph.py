@@ -487,8 +487,8 @@ class PlanningGraph():
         :return: bool
         """
 
-        for precond_a1 in node_a1.prenodes:
-            for precond_a2 in node_a2.prenodes:
+        for precond_a1 in node_a1.parents:
+            for precond_a2 in node_a2.parents:
                 if precond_a1.is_mutex(precond_a2):
                     return True
 
