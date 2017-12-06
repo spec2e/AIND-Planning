@@ -105,7 +105,6 @@ class PgNode_s(PgNode):
 class PgNode_a(PgNode):
     """A-type (action) Planning Graph node - inherited from PgNode """
 
-
     def __init__(self, action: Action):
         """A-level Planning Graph node constructor
 
@@ -311,6 +310,24 @@ class PlanningGraph():
         #   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
         #   action node is added, it MUST be connected to the S node instances in the appropriate s_level set.
 
+        current_s_levels = self.s_levels[level]
+        a_nodes = []
+
+        for action in self.all_actions:
+            node_a = PgNode_a(action)
+            preconds = node_a.precond_s_nodes()
+
+            if preconds.issubset(current_s_levels):
+
+                a_nodes.append(node_a)
+
+
+                for s_level in current_s_levels:
+                    s_level.children.add(node_a)
+                    node_a.parents.add(s_level)
+
+        self.a_levels.append(a_nodes)
+
     def add_literal_level(self, level):
         """ add an S (literal) level to the Planning Graph
 
@@ -328,6 +345,7 @@ class PlanningGraph():
         #   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
         #   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
         #   parent sets of the S nodes
+
 
     def update_a_mutex(self, nodeset):
         """ Determine and update sibling mutual exclusion for A-level nodes
@@ -353,6 +371,7 @@ class PlanningGraph():
                         self.competing_needs_mutex(n1, n2)):
                     mutexify(n1, n2)
 
+
     def serialize_actions(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
         Test a pair of actions for mutual exclusion, returning True if the
@@ -371,6 +390,7 @@ class PlanningGraph():
             return False
         return True
 
+
     def inconsistent_effects_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
         Test a pair of actions for inconsistent effects, returning True if
@@ -388,9 +408,10 @@ class PlanningGraph():
         # TODO test for Inconsistent Effects between nodes
         return False
 
+
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
-        Test a pair of actions for mutual exclusion, returning True if the 
+        Test a pair of actions for mutual exclusion, returning True if the
         effect of one action is the negation of a precondition of the other.
 
         HINT: The Action instance associated with an action node is accessible
@@ -405,6 +426,7 @@ class PlanningGraph():
         # TODO test for Interference between nodes
         return False
 
+
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
         Test a pair of actions for mutual exclusion, returning True if one of
@@ -418,6 +440,7 @@ class PlanningGraph():
 
         # TODO test for Competing Needs between nodes
         return False
+
 
     def update_s_mutex(self, nodeset: set):
         """ Determine and update sibling mutual exclusion for S-level nodes
@@ -438,6 +461,7 @@ class PlanningGraph():
                 if self.negation_mutex(n1, n2) or self.inconsistent_support_mutex(n1, n2):
                     mutexify(n1, n2)
 
+
     def negation_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s) -> bool:
         """
         Test a pair of state literals for mutual exclusion, returning True if
@@ -453,6 +477,7 @@ class PlanningGraph():
         """
         # TODO test for negation between nodes
         return False
+
 
     def inconsistent_support_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s):
         """
@@ -472,6 +497,7 @@ class PlanningGraph():
         """
         # TODO test for Inconsistent Support between nodes
         return False
+
 
     def h_levelsum(self) -> int:
         """The sum of the level costs of the individual goals (admissible if goals independent)
