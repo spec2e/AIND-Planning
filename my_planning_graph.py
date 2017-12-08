@@ -302,13 +302,6 @@ class PlanningGraph():
         :return:
             adds A nodes to the current level in self.a_levels[level]
         """
-        # TODO add action A level to the planning graph as described in the Russell-Norvig text
-        # 1. determine what actions to add and create those PgNode_a objects
-        # 2. connect the nodes to the previous S literal level
-        # for example, the A0 level will iterate through all possible actions for the problem and add a PgNode_a to a_levels[0]
-        #   set iff all prerequisite literals for the action hold in S0.  This can be accomplished by testing
-        #   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
-        #   action node is added, it MUST be connected to the S node instances in the appropriate s_level set.
 
         current_s_levels = self.s_levels[level]
         a_nodes = []
@@ -336,14 +329,6 @@ class PlanningGraph():
         :return:
             adds S nodes to the current level in self.s_levels[level]
         """
-        # TODO add literal S level to the planning graph as described in the Russell-Norvig text
-        # 1. determine what literals to add
-        # 2. connect the nodes
-        # for example, every A node in the previous level has a list of S nodes in effnodes that represent the effect
-        #   produced by the action.  These literals will all be part of the new S level.  Since we are working with sets, they
-        #   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
-        #   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
-        #   parent sets of the S nodes
 
         s_levels = set()
 
@@ -404,35 +389,23 @@ class PlanningGraph():
         Test a pair of actions for inconsistent effects, returning True if
         one action negates an effect of the other, and False otherwise.
 
-        HINT: The Action instance associated with an action node is accessible
-        through the PgNode_a.action attribute. See the Action class
-        documentation for details on accessing the effects and preconditions of
-        an action.
-
-        self.precond_pos = precond[0]
-        self.precond_neg = precond[1]
-        self.effect_add = effect[0]
-        self.effect_rem = effect[1]
-
-
         :param node_a1: PgNode_a
         :param node_a2: PgNode_a
         :return: bool
         """
 
         a1_action = node_a1.action
-        a1_pos_effects = set(a1_action.effect_add)
-        a1_neg_effects = set(a1_action.effect_rem)
-
         a2_action = node_a2.action
-        a2_pos_effects = set(a2_action.effect_add)
-        a2_neg_effects = set(a2_action.effect_rem)
 
+        a1_pos_effects = set(a1_action.effect_add)
+        a2_neg_effects = set(a2_action.effect_rem)
         a2_negates_a1 = a1_pos_effects.intersection(a2_neg_effects)
 
         if len(a2_negates_a1) > 0:
             return True
 
+        a1_neg_effects = set(a1_action.effect_rem)
+        a2_pos_effects = set(a2_action.effect_add)
         a1_negates_a2 = a2_pos_effects.intersection(a1_neg_effects)
 
         if len(a1_negates_a2) > 0:
@@ -548,16 +521,11 @@ class PlanningGraph():
         :return: bool
         """
 
-        node_s1_actions = node_s1.parents
-        node_s2_actions = node_s2.parents
-
-        # TODO: test if one of the parent actions are the same for both s1 and s2 before returning True/False ...
-
         matching_actions = False
         mutex_found = False
 
-        for s1_action_node in node_s1_actions:
-            for s2_action_node in node_s2_actions:
+        for s1_action_node in node_s1.parents:
+            for s2_action_node in node_s2.parents:
                 if s1_action_node == s2_action_node:
                     matching_actions = True
                 elif s1_action_node.is_mutex(s2_action_node):
@@ -578,9 +546,15 @@ class PlanningGraph():
         goals = self.problem.goal
 
         for s_level in self.s_levels:
+            # We advanced to the next level...
             level_sum += 1
+
+            # This current level might contain several nodes
             for s_node in s_level:
+
+                # For every goal in goals...
                 for g in goals:
+                    # if the current node matches the goal then return the current level
                     if s_node.symbol == g:
                         return level_sum
 
