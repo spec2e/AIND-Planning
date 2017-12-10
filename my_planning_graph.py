@@ -542,20 +542,16 @@ class PlanningGraph():
         :return: int
         """
         level_sum = 0
+        # For each goal in the problem, determine their level cost, then add them together
+        for goal in self.problem.goal:
+            goal_found = False
+            for level in range(len(self.s_levels)):
+                for state in self.s_levels[level]:
+                    if goal == state.literal:
+                        goal_found = True
+                        level_sum += level
+                        break
+                if goal_found:
+                    break
 
-        goals = self.problem.goal
-
-        for s_level in self.s_levels:
-            # We advanced to the next level...
-            level_sum += 1
-
-            # This current level might contain several nodes
-            for s_node in s_level:
-
-                # For every goal in goals...
-                for g in goals:
-                    # if the current node matches the goal then return the current level
-                    if s_node.symbol == g:
-                        return level_sum
-
-        return 0
+        return level_sum
