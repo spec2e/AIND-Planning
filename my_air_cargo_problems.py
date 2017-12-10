@@ -223,8 +223,8 @@ class AirCargoProblem(Problem):
         count = 0
         kb = PropKB()
         kb.tell(decode_state(node.state, self.state_map).pos_sentence())
-        for clause in self.goal:
-            if clause not in kb.clauses:
+        for goal in self.goal:
+            if goal not in kb.clauses:
                 count += 1
 
         return count
