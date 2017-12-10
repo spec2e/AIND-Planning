@@ -552,7 +552,6 @@ class PlanningGraph():
                     if s_node.symbol == goal and s_node.is_pos:
                         level_sum += level
                         goal_found = True
-                        break
 
                 if goal_found:
                     break
