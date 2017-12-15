@@ -492,13 +492,9 @@ class PlanningGraph():
         Test a pair of state literals for mutual exclusion, returning True if
         one node is the negation of the other, and False otherwise.
 
-        HINT: Look at the PgNode_s.__eq__ defines the notion of equivalence for
-        literal expression nodes, and the class tracks whether the literal is
-        positive or negative.
-
         :param node_s1: PgNode_s
         :param node_s2: PgNode_s
-        :return: bool
+        :return: bool True if one node negates the other
         """
 
         return (isinstance(node_s2, node_s1.__class__) and
@@ -513,12 +509,10 @@ class PlanningGraph():
         are pairwise mutually exclusive with all of the actions that could
         achieve the second literal node.
 
-        HINT: The PgNode.is_mutex method can be used to test whether two nodes
-        are mutually exclusive.
 
         :param node_s1: PgNode_s
         :param node_s2: PgNode_s
-        :return: bool
+        :return: bool True if the two nodes is mutual exclusive
         """
 
         matching_actions = False
@@ -543,12 +537,11 @@ class PlanningGraph():
         """
         level_sum = 0
 
-        # for each goal in the problem, determine the level cost, then add them together
-
         for goal in self.problem.goal:
             goal_found = False
             for level, s_level in enumerate(self.s_levels):
                 for s_node in s_level:
+                    # if the s_node is positive we can consider this a valid goal
                     if s_node.symbol == goal and s_node.is_pos:
                         level_sum += level
                         goal_found = True
